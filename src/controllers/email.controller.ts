@@ -31,6 +31,10 @@ export class EmailController {
   }
 
   private _subscribe(req: express.Request, res: express.Response) {
+    if (!req.body.email) {
+      res.status(400).json({ error: 'Request should contain email field' });
+      return;
+    }
     if (this._emailRepoService.saveEmail(req.body.email)) {
       res.status(200).end();
       return;
@@ -43,12 +47,12 @@ export class EmailController {
       const result = await this._bitcoinService.getBitcoinPrice();
       if (result === undefined) {
         res.status(500).json({ error: "Rate service returned unexpected response" });
+        return;
       }
       res.status(200).send(result);
     } catch (error) {
       res.status(error.response.status).json({ error: `Error: ${error.response.statusText}` });
     }
-
   }
 
   private async _sendEmails(req: express.Request, res: express.Response) {
